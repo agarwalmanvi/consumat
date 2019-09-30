@@ -1,4 +1,4 @@
-;;;; Author: Jager Wander (2017) ;;;;
+;;;; Author: Marco Janssen (2017) ;;;;
 ;;;; Extended by: Manvi Agarwal (2019) ;;;;
 
 ;;;; TODO create new agent-sets for fish and consumats ;;;;;;;;
@@ -70,10 +70,10 @@ to setup
   set FishCostPrice 1
   set WorldMFishPrice 5 * FIshCostPrice
 
-  crt num_agents [                         ;; define init values for agents
+  crt num_consumats [                         ;; define init values for agents
     set FishDemand 0.2
-    set MineSkill 0.05 / num_agents        ;; does not change (all agents have an equal level of mining skill)
-    set FishSkill 0.1 / num_agents         ;; does not change (all agents have an equal level of fishing skill)
+    set MineSkill 0.05 / num_consumats        ;; does not change (all agents have an equal level of mining skill)
+    set FishSkill 0.1 / num_consumats         ;; does not change (all agents have an equal level of fishing skill)
     set Miningtime 0.2
     set Fishingtime 0.6
     set Locpop_Finance 3
@@ -84,6 +84,8 @@ to setup
     set expcatch FishSkill * Fish_pop
     set Fish_Catch expcatch
   ]
+
+
 
   ;;;;; UI ;;;;;
 
@@ -316,7 +318,6 @@ to fishdynamics                                 ;;;;;;; Calculate local and glob
   set Fish_pop Fish_pop + Growth_rate * Fish_pop * ( 1 - Fish_pop / Carrying_Capacity) - FishCatchtot          ;; update the fish population
 
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -382,10 +383,10 @@ NIL
 SLIDER
 8
 64
-180
+182
 97
-num_agents
-num_agents
+num_consumats
+num_consumats
 0
 100
 16.0
