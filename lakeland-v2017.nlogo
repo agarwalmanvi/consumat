@@ -3,6 +3,9 @@
 
 ;;;; TODO create new agent-sets for fish and consumats ;;;;;;;;
 
+breed [consumats consumat]
+breed [fish a-fish]
+
 globals [
   FishCatchtot
   Fish_pop
@@ -22,7 +25,7 @@ globals [
   NumIm
   ]
 
-turtles-own [                ;;;;;;;;;;; Agent variables ;;;;;;;;
+consumats-own [                ;;;;;;;;;;; Consumat variables ;;;;;;;;
 
   Miningtime                 ;; Time devoted to mining
   Fishingtime                ;; Time devoted to fishing
@@ -60,6 +63,15 @@ turtles-own [                ;;;;;;;;;;; Agent variables ;;;;;;;;
   ]
 patches-own []
 
+fish-own [                   ;; none of these vars have been used yet!
+  ymax                       ;; defines the area within which the fish can swim
+  ymin                       ;;  bcoz the fish cannot swim on the land part!
+  xmax
+  xmin
+  yinit                      ;; x and y coords when initialized the fish
+  xinit
+]
+
 to setup
   clear-all
   set Fish_pop 100
@@ -70,7 +82,7 @@ to setup
   set FishCostPrice 1
   set WorldMFishPrice 5 * FIshCostPrice
 
-  crt num_consumats [                         ;; define init values for agents
+  create-consumats num_consumats [                         ;; define init values for agents
     set FishDemand 0.2
     set MineSkill 0.05 / num_consumats        ;; does not change (all agents have an equal level of mining skill)
     set FishSkill 0.1 / num_consumats         ;; does not change (all agents have an equal level of fishing skill)
@@ -83,14 +95,28 @@ to setup
     set LNSa_leis 0.2
     set expcatch FishSkill * Fish_pop
     set Fish_Catch expcatch
+    set color orange                           ;; set consumat color to orange
+    setxy random-pycor -16                     ;; the consumat appears at the bottom of the window
+    set heading 0                              ;; faces north
+    set shape "person"                         ;; and is shaped like a person
   ]
 
+  create-fish Fish_pop [
+    fd 4                                       ;; fish form a circle around the centre
+    set color green                            ;; green in colour
+    set shape "fish"                           ;; and are shaped like fish
+  ]
 
+  ask patches [
+    ifelse pycor > -15
+    [
+      set pcolor blue                   ;; patches on top section turn blue (water)
+    ]
+    [
+      set pcolor brown                   ;; patches in bottom section turn brown (land)
+    ]
+  ]
 
-  ;;;;; UI ;;;;;
-
-  ask patches [ set pcolor blue ]           ;; set background color to blue
-  ask turtles [ set color red ]             ;; set turtle color to red
   reset-ticks
 end
 
@@ -98,11 +124,27 @@ to go
 
   decisionmaking
 
+  ask consumats [
+    fd random 4
+    rt random 10
+    fd random 4
+    rt random 10
+    fd random 4
+    rt random 10
+    fd random 4
+    rt random 10
+    fd random 4
+    rt random 10
+    fd random 4
+    rt random 10
+    fd random 4
+  ]
+
   fishdynamics
 
-  ask turtles [                                                               ;; for each agent
-    ifelse mean [Locpop_Finance] of turtles > 0                               ;; if finance level of local population is not 0
-    [set exp_identity Locpop_Finance / mean [Locpop_Finance] of turtles]      ;; calculate new expected identity level
+  ask consumats [                                                               ;; for each agent
+    ifelse mean [Locpop_Finance] of consumats > 0                               ;; if finance level of local population is not 0
+    [set exp_identity Locpop_Finance / mean [Locpop_Finance] of consumats]      ;; calculate new expected identity level
     [set exp_identity 0]
 
     ifelse exp_identity >= 0 and Food_PC >= 0                                 ;; if expected identity and food_pc are both more than 0
@@ -120,8 +162,6 @@ to go
 
   ]
 
-  ;;;;;;;; UI ;;;;;;;
-
   tick
 
 end
@@ -134,7 +174,7 @@ to decisionmaking                               ;;;;;;; Calculate mining time an
   set NumSocCom 0                                        ;; counter for how many agents will do social comparison behaviour
   set NumIm 0                                            ;; counter for how many agents will do imitation behaviour
 
-  ask turtles [                   ;; for every agent
+  ask consumats [                   ;; for every agent
     let bestFT 0                  ;; best fishing time obtained thus far
     let bestMT 0                  ;; best mining time obtained thus far
     let expLNS 0                  ;; expected level of need satisfaction
@@ -184,8 +224,8 @@ to decisionmaking                               ;;;;;;; Calculate mining time an
 
             ;;;;; Calculate expected identity ;;;;;;
 
-            ifelse mean [Locpop_Finance] of turtles > 0                                 ;; if avg finance level of local population is more than 0
-            [set exp_identity exp_finance / mean [Locpop_Finance] of turtles]           ;; set exp_identity to normalized exp_finance wrt local pop's avg finance level
+            ifelse mean [Locpop_Finance] of consumats > 0                                 ;; if avg finance level of local population is more than 0
+            [set exp_identity exp_finance / mean [Locpop_Finance] of consumats]           ;; set exp_identity to normalized exp_finance wrt local pop's avg finance level
             [set exp_identity 1]                                                        ;; if avg finance level of local population is less than 0, set exp_identity to 1
 
             ;;;;;;;; Aggregate expected finances, food needs, and identity to obtain expected level of need satisfaction ;;;;;;;;;;;;
@@ -212,8 +252,8 @@ to decisionmaking                               ;;;;;;; Calculate mining time an
         set NumSocCom NumSocCom + 1                         ;; increment counter of social comparison agents
         let fs FishSkill                                    ;; temp variable for agent's level of fishing skill
         let ms MineSkill                                    ;; temp variable for agent's level of mining skill
-        set desMiningtime mean [Miningtime] of turtles with [abs(FishSkill - fs) < 0.05 and abs(MineSkill - ms) < 0.05]     ;; set new mining and fishing time to avg of
-        set desFishingtime mean [Fishingtime] of turtles with [abs(FishSkill - fs) < 0.05 and abs(MineSkill - ms) < 0.05]   ;; old values of agent sub-population
+        set desMiningtime mean [Miningtime] of consumats with [abs(FishSkill - fs) < 0.05 and abs(MineSkill - ms) < 0.05]     ;; set new mining and fishing time to avg of
+        set desFishingtime mean [Fishingtime] of consumats with [abs(FishSkill - fs) < 0.05 and abs(MineSkill - ms) < 0.05]   ;; old values of agent sub-population
                                                                                                                             ;; (based on similarity of fishing skill and mining skill)
       ]
     ]
@@ -227,15 +267,15 @@ to decisionmaking                               ;;;;;;; Calculate mining time an
       ]
       [ ;;;; Imitation ;;;;;                                 ;; agent level of need satisfaction is high and uncertainty is high
         set NumIm NumIm + 1                                  ;; increment counter for imitative agents
-        set desMiningtime mean [Miningtime] of turtles       ;; set new mining time and fishing time to the average
-        set desFishingtime mean [Fishingtime] of turtles     ;; of the old values of the agent population
+        set desMiningtime mean [Miningtime] of consumats       ;; set new mining time and fishing time to the average
+        set desFishingtime mean [Fishingtime] of consumats     ;; of the old values of the agent population
       ]
     ]
   ]
 
   ;;;;;;;;;;; make changes ;;;;;;;;;;;;;;
 
-  ask turtles [
+  ask consumats [
     set Miningtime desMiningtime                             ;; set mining time and fishing time based on the behaviour chosen for each agent
     set Fishingtime desFishingtime
   ]
@@ -245,7 +285,7 @@ end
 
 to fishdynamics                                 ;;;;;;; Calculate local and global variables, esp fish population and gold resource left ;;;;;;;;
 
-  ask turtles [                                                                                     ;; For each agent:
+  ask consumats [                                                                                     ;; For each agent:
 
     set GoldMining_Rate MineSkill * Miningtime * Gold_Resource                                      ;; Calculate gold mining rate
 
@@ -306,8 +346,8 @@ to fishdynamics                                 ;;;;;;; Calculate local and glob
 
   ]
 
-  set FishCatchtot sum [Fish_Catch] of turtles                                          ;; set total fish catch of agent population to sum of fish catches of individual agents
-  set GoldMining_Ratetot sum [GoldMining_Rate] of turtles                               ;; set total gold mining rate of agent population to sum of gold mining rates of individual agents
+  set FishCatchtot sum [Fish_Catch] of consumats                                          ;; set total fish catch of agent population to sum of fish catches of individual agents
+  set GoldMining_Ratetot sum [GoldMining_Rate] of consumats                               ;; set total gold mining rate of agent population to sum of gold mining rates of individual agents
 
   set Gold_Resource Gold_Resource - GoldMining_Ratetot                                  ;; adjust gold resource by subtracting the total amount of gold extracted by agent population
 
@@ -910,7 +950,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.0.1
 @#$#@#$#@
 setup
 set grass? true
