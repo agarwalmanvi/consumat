@@ -16,6 +16,10 @@ globals
   sigma                               ;; used for introducing variation in individual fish catch
   delta-fish                          ;; change in fish population
   prev-fish-population                ;; records previous value of fish population
+  deliberation-num
+  social-com-num
+  imitation-num
+  repetition-num
 ]
 
 consumatsEco-own
@@ -83,12 +87,12 @@ to setup
   [
     set fish-demand 1 / num-agents-psy
     set fishing-skill 0.1 / num-agents-psy
-    set utility 0.05
+    set utility 0.01
     set utility-min 0.05
-    set uncertainty 0.05
+    set uncertainty 0.01
     set uncertainty-max 0.05
     set fishing-time 0
-    set own-expected-utility 0.05
+    set own-expected-utility 0.01
     set prev-fishing-time 0
   ]
 
@@ -147,11 +151,16 @@ to decide-fishing-time                            ;; calculate how much time to 
 
   decide-fishing-time-eco
 
-  decide-fishing-time-psy
+  ;;decide-fishing-time-psy
 
 end
 
 to decide-fishing-time-eco
+
+  set deliberation-num 0
+  set social-com-num 0
+  set imitation-num 0
+  set repetition-num 0
 
   ask consumatsEco [
 
@@ -198,6 +207,8 @@ to decide-fishing-time-eco
         set fishing-time best-ft
         ;; update own-expected-utility to best-utility
         set own-expected-utility best-utility
+
+        set deliberation-num deliberation-num + 1
       ]
       [                                                                                 ;; SOCIAL COMPARISON
         let fishing-time-choice1 0
@@ -235,6 +246,9 @@ to decide-fishing-time-eco
           set fishing-time fishing-time-choice2
           set own-expected-utility expected-utility-choice2
         ]
+
+        set social-com-num social-com-num + 1
+
       ]
     ]
     [
@@ -250,6 +264,8 @@ to decide-fishing-time-eco
         ;; calculate expected utility
         set own-expected-utility (expected-income ^ gamma) * ((1 - fishing-time) ^ (1 - gamma))
 
+        set repetition-num repetition-num + 1
+
       ]
       [                                                                                 ;; IMITATION
 
@@ -262,6 +278,9 @@ to decide-fishing-time-eco
         [set expected-income (1 - fish-taxrate) * (fishing-time * fish-demand * fish-population - fish-demand)]
         ;; calculate expected utility
         set own-expected-utility (expected-income ^ gamma) * ((1 - fishing-time) ^ (1 - gamma))
+
+        set imitation-num imitation-num + 1
+
       ]
     ]
   ]
@@ -269,6 +288,11 @@ to decide-fishing-time-eco
 end
 
 to decide-fishing-time-psy
+
+  set deliberation-num 0
+  set social-com-num 0
+  set imitation-num 0
+  set repetition-num 0
 
   ask consumatsPsy [
 
@@ -315,6 +339,9 @@ to decide-fishing-time-psy
         set fishing-time best-ft
         ;; update own-expected-utility to best-utility
         set own-expected-utility best-utility
+
+        set deliberation-num deliberation-num + 1
+
       ]
       [                                                                                 ;; SOCIAL COMPARISON
         let fishing-time-choice1 0
@@ -352,6 +379,9 @@ to decide-fishing-time-psy
           set fishing-time fishing-time-choice2
           set own-expected-utility expected-utility-choice2
         ]
+
+        set social-com-num social-com-num + 1
+
       ]
     ]
     [
@@ -367,6 +397,8 @@ to decide-fishing-time-psy
         ;; calculate expected utility
         set own-expected-utility (expected-income ^ gamma) * ((1 - fishing-time) ^ (1 - gamma))
 
+        set repetition-num repetition-num + 1
+
       ]
       [                                                                                 ;; IMITATION
 
@@ -379,6 +411,10 @@ to decide-fishing-time-psy
         [set expected-income (1 - fish-taxrate) * (fishing-time * fish-demand * fish-population - fish-demand)]
         ;; calculate expected utility
         set own-expected-utility (expected-income ^ gamma) * ((1 - fishing-time) ^ (1 - gamma))
+
+        set imitation-num imitation-num + 1
+
+
       ]
     ]
   ]
@@ -479,7 +515,6 @@ to change-fish-population
 
 
 end
-
 
 
 @#$#@#$#@
@@ -603,11 +638,32 @@ Economicus
 Economicus
 0
 100
-20.0
+42.0
 1
 1
 NIL
 HORIZONTAL
+
+PLOT
+703
+263
+954
+383
+Strategies
+NIL
+NIL
+0.0
+10.0
+-1.0
+10.0
+true
+false
+"" ""
+PENS
+"del" 1.0 0 -5298144 true "" "plot deliberation-num"
+"soc-com" 1.0 0 -14454117 true "" "plot social-com-num"
+"rep" 1.0 0 -15040220 true "" "plot repetition-num"
+"imi" 1.0 0 -4079321 true "" "plot imitation-num"
 
 @#$#@#$#@
 ## WHAT IS IT?
