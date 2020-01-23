@@ -9,4 +9,4 @@ To get the model from this GitHub repository, open a terminal in your preferred 
 git clone https://github.com/agarwalmanvi/consumat.git
 ```
 
-The models corresponding to the MOOC on Computational Social Science can be found inside the _mooc_ folder. The online versions of these models can be found on agarwalmanvi.github.io/mooc
+The models corresponding to the MOOC on Computational Social Science can be found inside the _mooc_ folder. The online versions of these models can be found [here](agarwalmanvi.github.io/mooc)
