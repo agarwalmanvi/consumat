@@ -95,6 +95,8 @@ end
 
 to go
 
+  change-consumat-num
+
   set growth-rate FishGrowth
   set gamma WorkImportance
 
@@ -170,7 +172,7 @@ to move-consumats
 
 
   ask fish [                  ;; ask fish to move
-    fd 10
+    fd 1
     rt random 10
     if ycor < -7                          ;; if fish end up on land
     [ setxy random-xcor random 23 - 7 ]   ;; send them back to sea
@@ -218,26 +220,49 @@ to change-fish-population
   ]
   if prev-fish-population > fish-population
   [
-    ask fish [ die ]
-    create-fish fish-population [
-      setxy random-xcor random 23 - 7            ;; distribute fish randomly in water
-      set color orange - 1                            ;; green in colour
-      set shape "fish"                           ;; and are shaped like fish
-      set size 0.75
-    ]
+    let kill-n-fish prev-fish-population - fish-population
+    ask n-of kill-n-fish fish
+    [ die ]
   ]
 
 
 end
+
+to change-consumat-num
+
+  let old-consumat-num count consumats
+  let new-consumat-num Agents
+
+  if old-consumat-num < new-consumat-num                            ;; if you need more consumats
+  [
+    create-consumats new-consumat-num - old-consumat-num
+    [
+      set fish-demand 0.1
+      set fishing-skill 0.005
+      set color grey - 1                        ;; set consumat color to dark grey
+      setxy random-pycor -9                     ;; the consumat appears at the top of the land
+      set size 1.5
+      set shape "person"                        ;; and is shaped like a person
+    ]
+  ]
+
+  if old-consumat-num > new-consumat-num                            ;; if you need less consumats
+  [
+    let kill-n-consumats old-consumat-num - new-consumat-num
+    ask n-of kill-n-consumats consumats
+    [ die ]
+  ]
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+129
 10
-647
-448
+881
+763
 -1
 -1
-13.0
+22.55
 1
 10
 1
@@ -258,10 +283,10 @@ ticks
 30.0
 
 SLIDER
-12
-59
-184
-92
+954
+143
+1296
+176
 Agents
 Agents
 0
@@ -273,10 +298,10 @@ NIL
 HORIZONTAL
 
 PLOT
-699
-68
-899
-218
+1357
+27
+1890
+494
 Fish population
 Ticks
 Num. of Fish
@@ -291,10 +316,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot fish-population"
 
 BUTTON
-50
-164
-116
-197
+31
+272
+97
+305
 setup
 setup
 NIL
@@ -308,10 +333,10 @@ NIL
 1
 
 BUTTON
-47
-245
-110
-278
+31
+343
+94
+376
 go
 go
 NIL
@@ -325,10 +350,10 @@ NIL
 1
 
 BUTTON
-71
-383
-134
-416
+29
+418
+92
+451
 go
 go
 T
@@ -342,10 +367,10 @@ NIL
 1
 
 SLIDER
-713
-288
-885
-321
+952
+214
+1296
+247
 WorkImportance
 WorkImportance
 0
@@ -357,10 +382,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-713
-335
-885
-368
+953
+283
+1295
+316
 FishGrowth
 FishGrowth
 0
@@ -372,10 +397,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-726
-407
-991
-440
+956
+357
+1301
+390
 ShipSize
 ShipSize
 0.1
@@ -387,10 +412,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-702
-232
-874
-265
+956
+438
+1301
+471
 FishingArea
 FishingArea
 0.1

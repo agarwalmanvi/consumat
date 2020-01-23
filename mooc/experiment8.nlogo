@@ -102,6 +102,8 @@ end
 
 to go
 
+  change-consumat-num
+
   set patchesAllowed ceiling (24 * (1 - FishingArea))
   set lowerYCor 16 - patchesAllowed - 1
   set yCorList (range lowerYCor -7 -1)
@@ -165,10 +167,8 @@ end
 
 to move-consumats
 
-
-
   ask fish [                  ;; ask fish to move
-    fd 10
+    fd 1
     rt random 10
     if ycor < -7                          ;; if fish end up on land
     [ setxy random-xcor random 23 - 7 ]   ;; send them back to sea
@@ -216,26 +216,49 @@ to change-fish-population
   ]
   if prev-fish-population > fish-population
   [
-    ask fish [ die ]
-    create-fish fish-population [
-      setxy random-xcor random 23 - 7            ;; distribute fish randomly in water
-      set color orange - 1                            ;; green in colour
-      set shape "fish"                           ;; and are shaped like fish
-      set size 0.75
-    ]
+    let kill-n-fish prev-fish-population - fish-population
+    ask n-of kill-n-fish fish
+    [ die ]
   ]
 
 
 end
+
+to change-consumat-num
+
+  let old-consumat-num count consumats
+  let new-consumat-num Agents
+
+  if old-consumat-num < new-consumat-num                            ;; if you need more consumats
+  [
+    create-consumats new-consumat-num - old-consumat-num
+    [
+      set fish-demand 0.1
+      set fishing-skill 0.005
+      set color grey - 1                        ;; set consumat color to dark grey
+      setxy random-pycor -9                     ;; the consumat appears at the top of the land
+      set size 1.5
+      set shape "person"                        ;; and is shaped like a person
+    ]
+  ]
+
+  if old-consumat-num > new-consumat-num                            ;; if you need less consumats
+  [
+    let kill-n-consumats old-consumat-num - new-consumat-num
+    ask n-of kill-n-consumats consumats
+    [ die ]
+  ]
+
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+130
 10
-647
-448
+880
+761
 -1
 -1
-13.0
+22.5
 1
 10
 1
@@ -256,10 +279,10 @@ ticks
 30.0
 
 SLIDER
-12
-59
-184
-92
+966
+177
+1291
+210
 Agents
 Agents
 0
@@ -271,10 +294,10 @@ NIL
 HORIZONTAL
 
 PLOT
-699
-68
-899
-218
+1348
+31
+1887
+511
 Fish population
 Ticks
 Num. of Fish
@@ -289,10 +312,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot fish-population"
 
 BUTTON
-50
-164
-116
-197
+32
+250
+98
+283
 setup
 setup
 NIL
@@ -306,10 +329,10 @@ NIL
 1
 
 BUTTON
-47
-245
-110
-278
+32
+324
+95
+357
 go
 go
 NIL
@@ -323,10 +346,10 @@ NIL
 1
 
 BUTTON
-71
-383
-134
-416
+35
+399
+98
+432
 go
 go
 T
@@ -340,10 +363,10 @@ NIL
 1
 
 SLIDER
-702
-232
-874
-265
+968
+351
+1293
+384
 FishingArea
 FishingArea
 0.1
@@ -355,10 +378,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-704
-308
-842
-353
+965
+258
+1292
+303
 AgentType
 AgentType
 "Satisficing" "Maximizing"
