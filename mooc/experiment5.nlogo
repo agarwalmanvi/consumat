@@ -14,6 +14,7 @@ globals
   sigma                               ;; used for introducing variation in individual fish catch
   delta-fish                          ;; change in fish population
   prev-fish-population                ;; records previous value of fish population
+  current-fish                        ;; access instantaneous count of fish in the sea
   days-restricted                     ;; how many days (out of 7) is fishing not supposed to take place?
 
   RestrictDaysSwitch                        ;; old variable based on a switch that is not used anymore (boolean)
@@ -87,6 +88,14 @@ to setup
 end
 
 to go
+
+  set current-fish count fish                    ;; if there are no fish left, kill the simulation
+  if current-fish = 0
+  [ ifelse user-yes-or-no? "There are no more fish :( Do you want to start over?"
+    [ setup
+      stop ]
+    [ stop ]
+  ]
 
   change-consumat-num
 
@@ -167,9 +176,11 @@ to move-consumats
   ]
 
   ask consumats [
-    if fishing-time > 0               ;; if consumat wants to spend time fishing
+    ifelse fishing-time > 0               ;; if consumat wants to spend time fishing
     [ setxy random-xcor random 23 - 7
       set shape "personboat" ]            ;; send to sea with a boat
+    [ setxy random-pycor -9               ;; if fishing time is 0, send to land to chill
+      set shape "person" ]
   ]
 
 
@@ -209,8 +220,14 @@ to change-fish-population
   if prev-fish-population > fish-population
   [
     let kill-n-fish prev-fish-population - fish-population
-    ask n-of kill-n-fish fish
-    [ die ]
+    set current-fish count fish
+    ifelse kill-n-fish > current-fish               ;; if the number of fish to be killed is more than the total population
+    [ ask fish                                      ;; kill all of them
+      [ die ]
+    ]
+    [ ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
+      [ die ]
+    ]
   ]
 
 
