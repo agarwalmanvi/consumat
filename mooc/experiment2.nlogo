@@ -38,10 +38,10 @@ to setup
   ;; set global variables
   set num-agents Agents
   set fish-marketprice 1
-  set fish-population 100
+  set fish-population 500
   set growth-rate FishGrowth
-  set carrying-capacity 100
-  set gamma WorkImportance
+  set carrying-capacity 500
+  set gamma 0.8
   set fish-taxrate 0.1
   set sigma 0.05
 
@@ -96,7 +96,7 @@ to go
   change-consumat-num
 
   set growth-rate FishGrowth
-  set gamma WorkImportance
+  ;; set gamma WorkImportance
 
   decide-fishing-time
 
@@ -176,7 +176,7 @@ to harvest-update-population                    ;; calculate fish harvest and up
 
   ;; calculate total harvest of consumat population
   set total-harvest sum [harvest] of consumats
-  output-print total-harvest
+  ;; output-print total-harvest
 
   ;; calculate change in fish population and update fish population
   set delta-fish (growth-rate * fish-population * (1 - fish-population / carrying-capacity)) - total-harvest
@@ -206,6 +206,7 @@ to change-fish-population
     [ ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
       [ die ]
     ]
+    set fish-population count fish
   ]
 
 
@@ -275,7 +276,7 @@ Agents
 Agents
 0
 100
-38.0
+10.0
 1
 1
 NIL
@@ -351,25 +352,10 @@ NIL
 1
 
 SLIDER
-938
-142
+937
+148
 1285
-175
-WorkImportance
-WorkImportance
-0
-1
-0.0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-938
-199
-1286
-232
+181
 FishGrowth
 FishGrowth
 0

@@ -38,9 +38,9 @@ to setup
   ;; set global variables
   set num-agents Agents
   set fish-marketprice 1
-  set fish-population 100
+  set fish-population 500
   set growth-rate 0.1
-  set carrying-capacity 100
+  set carrying-capacity 500
   set gamma 0.7
   set fish-taxrate 0.1
   set sigma 0.05
@@ -197,14 +197,27 @@ to change-fish-population
   if prev-fish-population > fish-population
   [
     let kill-n-fish prev-fish-population - fish-population
+    ;; print kill-n-fish
     set current-fish count fish
+    ;; print current-fish
     ifelse kill-n-fish > current-fish               ;; if the number of fish to be killed is more than the total population
-    [ ask fish                                      ;; kill all of them
+    [ ;; print "Killed all of them"
+      ask fish                                      ;; kill all of them
       [ die ]
     ]
-    [ ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
+    [ ;; print "Killing a subset"
+      ;; print kill-n-fish
+      ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
       [ die ]
+      ;; print "Number of fish left"
+      ;; print count fish
+      ;; print "fish-population shows"
+      ;; print fish-population
+      ;; set fish-population count fish
+      ;; print "fish-population now shows"
+      ;; print fish-population
     ]
+    set fish-population count fish
   ]
 
 
@@ -237,9 +250,6 @@ to change-consumat-num
 
 
 end
-
-
-
 
 
 
@@ -283,7 +293,7 @@ Agents
 Agents
 0
 100
-100.0
+10.0
 1
 1
 NIL
