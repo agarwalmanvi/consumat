@@ -36,12 +36,12 @@ to setup
   clear-all
 
   ;; set global variables
-  set num-agents Agents
+  set num-agents Fishers
   set fish-marketprice 1
-  set fish-population 100
+  set fish-population 500
   set growth-rate FishGrowth
-  set carrying-capacity 100
-  set gamma WorkImportance
+  set carrying-capacity 500
+  set gamma 0.7
   set fish-taxrate 0.1
   set sigma 0.05
 
@@ -96,7 +96,7 @@ to go
   change-consumat-num
 
   set growth-rate FishGrowth
-  set gamma WorkImportance
+  set gamma 0.7
 
   ask consumats
   [
@@ -177,7 +177,7 @@ to harvest-update-population                    ;; calculate fish harvest and up
   ask consumats [
     ;; calculate harvest for each consumat
     set harvest fishing-skill * fishing-time * fish-population * random-normal 1 sigma
-    ;;output-print harvest
+    ;; output-print harvest
   ]
 
   ;; calculate total harvest of consumat population
@@ -186,15 +186,18 @@ to harvest-update-population                    ;; calculate fish harvest and up
 
   ;; calculate change in fish population and update fish population
   set delta-fish (growth-rate * fish-population * (1 - fish-population / carrying-capacity)) - total-harvest
-  set fish-population fish-population + delta-fish
+  ;; set fish-population fish-population + delta-fish
 
 end
 
 to change-fish-population
 
-  if prev-fish-population < fish-population
+  let new-fish-population round fish-population + delta-fish
+
+  if prev-fish-population < new-fish-population
   [
-    create-fish fish-population - prev-fish-population [
+    let extra-fish new-fish-population - prev-fish-population
+    create-fish extra-fish [
       setxy random-xcor random 23 - 7            ;; distribute fish randomly in water
       set color orange - 1                            ;; green in colour
       set shape "fish"                           ;; and are shaped like fish
@@ -202,26 +205,29 @@ to change-fish-population
     ]
   ]
 
-  if prev-fish-population > fish-population
+  if prev-fish-population > new-fish-population
   [
-    let kill-n-fish prev-fish-population - fish-population
+    let kill-n-fish prev-fish-population - new-fish-population
     set current-fish count fish
     ifelse kill-n-fish > current-fish               ;; if the number of fish to be killed is more than the total population
-    [ ask fish                                      ;; kill all of them
+    [
+      ask fish                                      ;; kill all of them
       [ die ]
     ]
-    [ ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
+    [
+      ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
       [ die ]
     ]
   ]
 
+  set fish-population count fish
 
 end
 
 to change-consumat-num
 
   let old-consumat-num count consumats
-  let new-consumat-num Agents
+  let new-consumat-num Fishers
 
   if old-consumat-num < new-consumat-num                            ;; if you need more consumats
   [
@@ -247,13 +253,13 @@ to change-consumat-num
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-128
-10
-878
-761
+37
+84
+670
+718
 -1
 -1
-22.5
+18.94
 1
 10
 1
@@ -274,25 +280,25 @@ ticks
 30.0
 
 SLIDER
-937
-125
-1278
-158
-Agents
-Agents
+816
+100
+1157
+133
+Fishers
+Fishers
 0
 100
-50.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-1349
-29
-1888
-483
+705
+311
+1169
+718
 Fish population
 Ticks
 Num. of Fish
@@ -307,10 +313,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot fish-population"
 
 BUTTON
-32
-308
-98
-341
+706
+100
+772
+133
 setup
 setup
 NIL
@@ -324,10 +330,10 @@ NIL
 1
 
 BUTTON
-31
-374
-94
-407
+705
+166
+768
+199
 go
 go
 NIL
@@ -341,10 +347,10 @@ NIL
 1
 
 BUTTON
-31
-440
-94
-473
+705
+232
+768
+265
 go
 go
 T
@@ -358,40 +364,25 @@ NIL
 1
 
 SLIDER
-936
-198
-1276
-231
-WorkImportance
-WorkImportance
+817
+170
+1157
+203
+FishGrowth
+FishGrowth
 0
 1
-0.7
-0.1
+0.05
+0.05
 1
 NIL
 HORIZONTAL
 
 SLIDER
-935
-269
-1275
-302
-FishGrowth
-FishGrowth
-0
-1
-0.1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-935
-343
-1273
-376
+817
+241
+1155
+274
 ShipSize
 ShipSize
 0.1
@@ -401,6 +392,16 @@ ShipSize
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+42
+18
+722
+69
+Click setup to create a model. Click go to start playing! Experiment with the number of fishers, fish growth and the size of ships.
+20
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -754,7 +755,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

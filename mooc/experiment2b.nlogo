@@ -36,11 +36,11 @@ to setup
   clear-all
 
   ;; set global variables
-  set num-agents Agents
+  set num-agents Fishers
   set fish-marketprice 1
-  set fish-population 100
+  set fish-population 500
   set growth-rate FishGrowth
-  set carrying-capacity 100
+  set carrying-capacity 500
   set gamma WorkImportance
   set fish-taxrate 0.1
   set sigma 0.05
@@ -214,7 +214,7 @@ end
 to change-consumat-num
 
   let old-consumat-num count consumats
-  let new-consumat-num Agents
+  let new-consumat-num Fishers
 
   if old-consumat-num < new-consumat-num                            ;; if you need more consumats
   [
@@ -240,13 +240,13 @@ to change-consumat-num
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-139
-10
-889
-761
+36
+90
+667
+722
 -1
 -1
-22.5
+18.9
 1
 10
 1
@@ -267,25 +267,25 @@ ticks
 30.0
 
 SLIDER
-947
-113
-1264
-146
-Agents
-Agents
+824
+97
+1141
+130
+Fishers
+Fishers
 0
 100
-38.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-1316
-27
-1849
-480
+704
+329
+1166
+723
 Fish population
 Ticks
 Num. of Fish
@@ -300,10 +300,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot fish-population"
 
 BUTTON
-38
-287
-104
-320
+704
+106
+770
+139
 setup
 setup
 NIL
@@ -317,10 +317,10 @@ NIL
 1
 
 BUTTON
-38
-351
-101
-384
+704
+170
+767
+203
 go
 go
 NIL
@@ -334,51 +334,61 @@ NIL
 1
 
 BUTTON
+702
+233
+765
+266
+go
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+827
+165
+1142
+198
+WorkImportance
+WorkImportance
+0
+1
+0.7
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+830
+238
+1143
+271
+FishGrowth
+FishGrowth
+0
+1
+0.05
+0.05
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
 36
-414
-99
-447
-go
-go
-T
+23
+717
+76
+Click setup to create a model. Click go to start playing! Experiment with the number of fishers, work importance and fish growth.
+20
+0.0
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-950
-181
-1265
-214
-WorkImportance
-WorkImportance
-0
-1
-0.4
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-953
-254
-1266
-287
-FishGrowth
-FishGrowth
-0
-1
-0.1
-0.1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -732,7 +742,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

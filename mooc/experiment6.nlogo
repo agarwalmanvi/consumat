@@ -39,12 +39,12 @@ to setup
   clear-all
 
   ;; set global variables
-  set num-agents Agents
+  set num-agents Fishers
   set fish-marketprice 1
-  set fish-population 100
-  set growth-rate FishGrowth
-  set carrying-capacity 100
-  set gamma WorkImportance
+  set fish-population 500
+  set growth-rate 0.05
+  set carrying-capacity 500
+  set gamma 0.7
   set fish-taxrate 0.1
   set sigma 0.05
 
@@ -54,14 +54,12 @@ to setup
     ;; set fish-demand 1 / num-agents
     set fish-demand 0.1
     ;; set fishing-skill ShipSize / (num-agents * 25)
-    set fishing-skill ShipSize / 200
+    set fishing-skill 0.005
   ]
 
   create-fish fish-population
 
   set patchesAllowed ceiling (24 * (1 - FishingArea))
-  set lowerYCor 16 - patchesAllowed - 1
-  set yCorList (range lowerYCor -7 -1)
 
   ask patches
   [
@@ -78,7 +76,7 @@ to setup
   [
     set color grey - 1                        ;; set consumat color to dark grey
     setxy random-pycor -9                     ;; the consumat appears at the top of the land
-    set size ShipSize * 3                    ;; scale size based on the fishing skill
+    set size 1.5                    ;; scale size based on the fishing skill
     set shape "person"                        ;; and is shaped like a person
   ]
 
@@ -106,18 +104,16 @@ to go
 
   change-consumat-num
 
-  set growth-rate FishGrowth
-  set gamma WorkImportance
+  set growth-rate 0.05
+  set gamma 0.7
 
   ask consumats
   [
-    set fishing-skill ShipSize / 200
-    set size ShipSize * 3
+    set fishing-skill 0.005
+    set size 1.5
   ]
 
   set patchesAllowed ceiling (24 * (1 - FishingArea))
-  set lowerYCor 16 - patchesAllowed - 1
-  set yCorList (range lowerYCor -7 -1)
 
   ask patches
   [
@@ -178,8 +174,6 @@ end
 
 to move-consumats
 
-
-
   ask fish [                  ;; ask fish to move
     fd 1
     rt random 10
@@ -189,12 +183,15 @@ to move-consumats
 
   ask consumats [
     ifelse fishing-time > 0               ;; if consumat wants to spend time fishing
-    [ setxy random-xcor random 23 - 7
+    [ set patchesAllowed ceiling (24 * (1 - FishingArea))
+      set lowerYCor 16 - patchesAllowed - 1
+      set yCorList (range lowerYCor -7 -1)
+      let selectedYCor one-of yCorList
+      setxy random-pxcor selectedYCor
       set shape "personboat" ]            ;; send to sea with a boat
-    [ setxy random-pycor -9               ;; if fishing time is 0, send to land to chill
+    [ setxy random-pxcor -9               ;; if fishing time is 0, send to land to chill
       set shape "person" ]
   ]
-
 
 end
 
@@ -205,7 +202,7 @@ to harvest-update-population                    ;; calculate fish harvest and up
   ask consumats [
     ;; calculate harvest for each consumat
     set harvest fishing-skill * fishing-time * fish-population * FishingArea * random-normal 1 sigma
-    ;;output-print harvest
+    ;; output-print harvest
   ]
 
   ;; calculate total harvest of consumat population
@@ -214,41 +211,48 @@ to harvest-update-population                    ;; calculate fish harvest and up
 
   ;; calculate change in fish population and update fish population
   set delta-fish (growth-rate * fish-population * (1 - fish-population / carrying-capacity)) - total-harvest
-  set fish-population fish-population + delta-fish
+  ;; set fish-population fish-population + delta-fish
 
 end
 
 to change-fish-population
 
-  if prev-fish-population < fish-population
+  let new-fish-population round fish-population + delta-fish
+
+  if prev-fish-population < new-fish-population
   [
-    create-fish fish-population - prev-fish-population [
+    let extra-fish new-fish-population - prev-fish-population
+    create-fish extra-fish [
       setxy random-xcor random 23 - 7            ;; distribute fish randomly in water
       set color orange - 1                            ;; green in colour
       set shape "fish"                           ;; and are shaped like fish
       set size 0.75
     ]
   ]
-  if prev-fish-population > fish-population
+
+  if prev-fish-population > new-fish-population
   [
-    let kill-n-fish prev-fish-population - fish-population
+    let kill-n-fish prev-fish-population - new-fish-population
     set current-fish count fish
     ifelse kill-n-fish > current-fish               ;; if the number of fish to be killed is more than the total population
-    [ ask fish                                      ;; kill all of them
+    [
+      ask fish                                      ;; kill all of them
       [ die ]
     ]
-    [ ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
+    [
+      ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
       [ die ]
     ]
   ]
 
+  set fish-population count fish
 
 end
 
 to change-consumat-num
 
   let old-consumat-num count consumats
-  let new-consumat-num Agents
+  let new-consumat-num Fishers
 
   if old-consumat-num < new-consumat-num                            ;; if you need more consumats
   [
@@ -273,13 +277,13 @@ to change-consumat-num
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-129
-10
-881
-763
+30
+83
+669
+723
 -1
 -1
-22.55
+19.12121212121212
 1
 10
 1
@@ -300,25 +304,25 @@ ticks
 30.0
 
 SLIDER
-954
-143
-1296
-176
-Agents
-Agents
+813
+120
+1155
+153
+Fishers
+Fishers
 0
 100
-30.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-1357
-27
-1890
-494
+698
+281
+1163
+724
 Fish population
 Ticks
 Num. of Fish
@@ -333,10 +337,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot fish-population"
 
 BUTTON
-31
-272
-97
-305
+703
+91
+769
+124
 setup
 setup
 NIL
@@ -350,10 +354,10 @@ NIL
 1
 
 BUTTON
-31
-343
-94
-376
+705
+152
+768
+185
 go
 go
 NIL
@@ -367,10 +371,10 @@ NIL
 1
 
 BUTTON
-29
-418
-92
-451
+705
+217
+768
+250
 go
 go
 T
@@ -384,55 +388,10 @@ NIL
 1
 
 SLIDER
-952
-214
-1296
-247
-WorkImportance
-WorkImportance
-0
-1
-0.7
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-953
-283
-1295
-316
-FishGrowth
-FishGrowth
-0
-1
-0.1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-956
-357
-1301
-390
-ShipSize
-ShipSize
-0.1
-1
-0.5
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-956
-438
-1301
-471
+812
+191
+1157
+224
 FishingArea
 FishingArea
 0.1
@@ -442,6 +401,16 @@ FishingArea
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+35
+18
+854
+67
+Click setup to create a model. Click go to start playing! You can choose to restrict fishing to a certain area. You can also experiment with the number of fishers.
+20
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -795,7 +764,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

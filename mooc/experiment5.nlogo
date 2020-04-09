@@ -1,5 +1,6 @@
 breed [consumats consumat]
 breed [fish a-fish]
+breed [boards board]
 
 globals
 [
@@ -39,12 +40,12 @@ to setup
   clear-all
 
   ;; set global variables
-  set num-agents Agents
+  set num-agents Fishers
   set fish-marketprice 1
-  set fish-population 100
-  set growth-rate FishGrowth
-  set carrying-capacity 100
-  set gamma WorkImportance
+  set fish-population 500
+  set growth-rate 0.05
+  set carrying-capacity 500
+  set gamma 0.7
   set fish-taxrate 0.1
   set sigma 0.05
   set days-restricted range RestrictDays
@@ -55,7 +56,7 @@ to setup
     ;; set fish-demand 1 / num-agents
     set fish-demand 0.1
     ;; set fishing-skill ShipSize / (num-agents * 25)
-    set fishing-skill ShipSize / 200
+    set fishing-skill 0.005
   ]
 
   create-fish fish-population
@@ -71,7 +72,7 @@ to setup
   [
     set color grey - 1                        ;; set consumat color to dark grey
     setxy random-pycor -9                     ;; the consumat appears at the top of the land
-    set size ShipSize * 3                    ;; scale size based on the fishing skill
+    set size 1.5                    ;; scale size based on the fishing skill
     set shape "person"                        ;; and is shaped like a person
   ]
 
@@ -99,13 +100,13 @@ to go
 
   change-consumat-num
 
-  set growth-rate FishGrowth
-  set gamma WorkImportance
+  set growth-rate 0.05
+  set gamma 0.7
 
   ask consumats
   [
-    set fishing-skill ShipSize / 200
-    set size ShipSize * 3
+    set fishing-skill 0.005
+    set size 1.5
   ]
 
   set days-restricted range RestrictDays
@@ -193,7 +194,7 @@ to harvest-update-population                    ;; calculate fish harvest and up
   ask consumats [
     ;; calculate harvest for each consumat
     set harvest fishing-skill * fishing-time * fish-population * random-normal 1 sigma
-    ;;output-print harvest
+    ;; output-print harvest
   ]
 
   ;; calculate total harvest of consumat population
@@ -202,41 +203,48 @@ to harvest-update-population                    ;; calculate fish harvest and up
 
   ;; calculate change in fish population and update fish population
   set delta-fish (growth-rate * fish-population * (1 - fish-population / carrying-capacity)) - total-harvest
-  set fish-population fish-population + delta-fish
+  ;; set fish-population fish-population + delta-fish
 
 end
 
 to change-fish-population
 
-  if prev-fish-population < fish-population
+  let new-fish-population round fish-population + delta-fish
+
+  if prev-fish-population < new-fish-population
   [
-    create-fish fish-population - prev-fish-population [
+    let extra-fish new-fish-population - prev-fish-population
+    create-fish extra-fish [
       setxy random-xcor random 23 - 7            ;; distribute fish randomly in water
       set color orange - 1                            ;; green in colour
       set shape "fish"                           ;; and are shaped like fish
       set size 0.75
     ]
   ]
-  if prev-fish-population > fish-population
+
+  if prev-fish-population > new-fish-population
   [
-    let kill-n-fish prev-fish-population - fish-population
+    let kill-n-fish prev-fish-population - new-fish-population
     set current-fish count fish
     ifelse kill-n-fish > current-fish               ;; if the number of fish to be killed is more than the total population
-    [ ask fish                                      ;; kill all of them
+    [
+      ask fish                                      ;; kill all of them
       [ die ]
     ]
-    [ ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
+    [
+      ask n-of kill-n-fish fish                     ;; otherwise kill the required subset
       [ die ]
     ]
   ]
 
+  set fish-population count fish
 
 end
 
 to change-consumat-num
 
   let old-consumat-num count consumats
-  let new-consumat-num Agents
+  let new-consumat-num Fishers
 
   if old-consumat-num < new-consumat-num                            ;; if you need more consumats
   [
@@ -314,13 +322,13 @@ to old-to-go
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-132
-10
-883
-762
+34
+82
+678
+727
 -1
 -1
-22.52
+19.3
 1
 10
 1
@@ -341,25 +349,25 @@ ticks
 30.0
 
 SLIDER
-955
-146
-1280
-179
-Agents
-Agents
+822
+128
+1147
+161
+Fishers
+Fishers
 0
 100
-30.0
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-1349
-28
-1889
-478
+708
+290
+1168
+729
 Fish population
 Ticks
 Num. of Fish
@@ -374,27 +382,27 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot fish-population"
 
 BUTTON
-30
-277
-96
-310
-setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-30
-350
+712
 93
-383
+778
+126
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+713
+156
+776
+189
 go
 go
 NIL
@@ -408,10 +416,10 @@ NIL
 1
 
 BUTTON
-27
-422
-90
-455
+712
+219
+775
+252
 go
 go
 T
@@ -425,55 +433,10 @@ NIL
 1
 
 SLIDER
-952
-223
-1281
-256
-WorkImportance
-WorkImportance
-0
-1
-0.5
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-953
-296
-1281
-329
-FishGrowth
-FishGrowth
-0
-1
-0.1
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-953
-369
-1284
-402
-ShipSize
-ShipSize
-0.1
-1
-0.3
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-953
-443
-1281
-476
+820
+194
+1148
+227
 RestrictDays
 RestrictDays
 0
@@ -483,6 +446,16 @@ RestrictDays
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+41
+18
+950
+68
+Click setup to create a model. Click go to start playing! You can choose to restrict fishing for a certain number of days. You can also experiment with the number of fishers.
+20
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -836,7 +809,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
