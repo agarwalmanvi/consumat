@@ -94,6 +94,14 @@ end
 
 to go
 
+  ifelse fish-population < 50
+  [
+    set growth-rate 0.01
+  ]
+  [
+    set growth-rate 0.05
+  ]
+
   set current-fish count fish                    ;; if there are no fish left, kill the simulation
   if current-fish = 0
   [ ifelse user-yes-or-no? "There are no more fish :( Do you want to start over?"
@@ -103,9 +111,6 @@ to go
   ]
 
   change-consumat-num
-
-  set growth-rate 0.05
-  set gamma 0.7
 
   ask consumats
   [

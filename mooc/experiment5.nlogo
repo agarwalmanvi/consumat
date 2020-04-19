@@ -90,6 +90,14 @@ end
 
 to go
 
+  ifelse fish-population < 50
+  [
+    set growth-rate 0.01
+  ]
+  [
+    set growth-rate 0.05
+  ]
+
   set current-fish count fish                    ;; if there are no fish left, kill the simulation
   if current-fish = 0
   [ ifelse user-yes-or-no? "There are no more fish :( Do you want to start over?"
@@ -100,15 +108,6 @@ to go
 
   change-consumat-num
 
-  set growth-rate 0.05
-  set gamma 0.7
-
-  ask consumats
-  [
-    set fishing-skill 0.005
-    set size 1.5
-  ]
-
   set days-restricted range RestrictDays
 
   let rem ticks mod 7
@@ -117,6 +116,10 @@ to go
 
   [                                     ;; move people back to land and let the fish swim in the sea
     move-and-rest
+
+    let-fish-grow
+
+    change-fish-population
   ]
 
   [                                     ;;  otherwise, just keep allowing agents to fish
@@ -183,7 +186,6 @@ to move-consumats
     [ setxy random-pycor -9               ;; if fishing time is 0, send to land to chill
       set shape "person" ]
   ]
-
 
 end
 
@@ -282,6 +284,14 @@ to move-and-rest
     if ycor < -7                          ;; if fish end up on land
     [ setxy random-xcor random 23 - 7 ]   ;; send them back to sea
   ]
+
+end
+
+to let-fish-grow
+
+  set prev-fish-population fish-population
+
+  set delta-fish (growth-rate * fish-population * (1 - fish-population / carrying-capacity))
 
 end
 

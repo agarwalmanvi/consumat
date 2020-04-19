@@ -42,13 +42,13 @@ to setup
   set fish-population 500
   set growth-rate 0.05
   set carrying-capacity 500
-  ;; set gamma WorkImportance
+  set gamma WorkImportance
   set fish-taxrate 0.1
   set sigma 0.05
 
-  ifelse FisherType = "Satisficing"
-  [ set gamma 0.5 ]
-  [ set gamma 0.8 ]
+  ;;ifelse FisherType = "Satisficing"
+  ;;[ set gamma 0.5 ]
+  ;;[ set gamma 0.8 ]
 
   ;; set consumat variables
   create-consumats num-agents
@@ -57,9 +57,11 @@ to setup
     set fish-demand 0.1
     ;; set fishing-skill ShipSize / (num-agents * 25)
     ;; set fishing-skill ShipSize / 200
-    ifelse FisherType = "Satisficing"
-    [ set fishing-skill 0.003 ]
-    [ set fishing-skill 0.01 ]
+    ;;ifelse FisherType = "Satisficing"
+    ;;[ set fishing-skill 0.003 ]
+    ;;[ set fishing-skill 0.01 ]
+
+    set fishing-skill 0.005
   ]
 
   create-fish fish-population
@@ -100,6 +102,16 @@ to go
       stop ]
     [ stop ]
   ]
+
+  ifelse fish-population < 50
+  [
+    set growth-rate 0.01
+  ]
+  [
+    set growth-rate 0.05
+  ]
+
+  set gamma WorkImportance
 
   change-consumat-num
 
@@ -362,16 +374,6 @@ NIL
 NIL
 1
 
-CHOOSER
-823
-182
-1157
-227
-FisherType
-FisherType
-"Satisficing" "Maximizing"
-0
-
 TEXTBOX
 47
 19
@@ -381,6 +383,21 @@ Click setup to create a model. Click go to start playing! Choose a fisher type f
 20
 0.0
 1
+
+SLIDER
+823
+181
+1158
+214
+WorkImportance
+WorkImportance
+0
+1
+0.5
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?

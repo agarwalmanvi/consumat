@@ -93,6 +93,14 @@ to go
     [ stop ]
   ]
 
+  ifelse fish-population < 50
+  [
+    set growth-rate 0.01
+  ]
+  [
+    set growth-rate 0.05
+  ]
+
   change-consumat-num
 
   decide-fishing-time

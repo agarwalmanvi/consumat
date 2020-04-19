@@ -44,14 +44,14 @@ to setup
   set fish-population 500
   set growth-rate 0.05
   set carrying-capacity 500
-  ;; set gamma WorkImportance
+  set gamma WorkImportance
   set fish-taxrate 0.1
   set sigma 0.05
   set days-restricted range RestrictDays
 
-  ifelse FisherType = "Satisficing"
-  [ set gamma 0.5 ]
-  [ set gamma 0.8 ]
+  ;;ifelse FisherType = "Satisficing"
+  ;;[ set gamma 0.5 ]
+  ;;[ set gamma 0.8 ]
 
   ;; set consumat variables
   create-consumats num-agents
@@ -60,9 +60,10 @@ to setup
     set fish-demand 0.1
     ;; set fishing-skill ShipSize / (num-agents * 25)
     ;; set fishing-skill ShipSize / 200
-    ifelse FisherType = "Satisficing"
-    [ set fishing-skill 0.003 ]
-    [ set fishing-skill 0.01 ]
+    ;;ifelse FisherType = "Satisficing"
+    ;;[ set fishing-skill 0.003 ]
+    ;;[ set fishing-skill 0.01 ]
+    set fishing-skill 0.005
   ]
 
   create-fish fish-population
@@ -96,6 +97,16 @@ end
 
 to go
 
+  ifelse fish-population < 50
+  [
+    set growth-rate 0.01
+  ]
+  [
+    set growth-rate 0.05
+  ]
+
+  set gamma WorkImportance
+
   set current-fish count fish                    ;; if there are no fish left, kill the simulation
   if current-fish = 0
   [ ifelse user-yes-or-no? "There are no more fish :( Do you want to start over?"
@@ -114,6 +125,10 @@ to go
 
   [                                     ;; move people back to land and let the fish swim in the sea
     move-and-rest
+
+    let-fish-grow
+
+    change-fish-population
   ]
 
   [                                     ;;  otherwise, just keep allowing agents to fish
@@ -282,6 +297,14 @@ to move-and-rest
 
 end
 
+to let-fish-grow
+
+  set prev-fish-population fish-population
+
+  set delta-fish (growth-rate * fish-population * (1 - fish-population / carrying-capacity))
+
+end
+
 ;;;;;;; Old code ;;;;;;;;;;
 
 to old-to-go
@@ -430,10 +453,10 @@ NIL
 1
 
 SLIDER
-815
-227
-1161
-260
+814
+225
+1160
+258
 RestrictDays
 RestrictDays
 0
@@ -444,16 +467,6 @@ RestrictDays
 NIL
 HORIZONTAL
 
-CHOOSER
-814
-154
-1160
-199
-FisherType
-FisherType
-"Satisficing" "Maximizing"
-0
-
 TEXTBOX
 41
 22
@@ -463,6 +476,21 @@ Click setup to create a model. Click go to start playing! You can choose to chan
 20
 0.0
 1
+
+SLIDER
+811
+159
+1161
+192
+WorkImportance
+WorkImportance
+0
+1
+0.5
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
